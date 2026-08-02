@@ -1,0 +1,6 @@
+location    = "eastus"
+environment = "dev"
+
+# The initial deployment uses Microsoft's quickstart container.
+# GitHub Actions will later replace this with the Mavencrest image.
+container_image = "mcr.microsoft.com/k8se/quickstart:latest"
