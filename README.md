@@ -19,6 +19,14 @@ This repository provisions the Azure infrastructure and deploys the containerize
 
 The initial deployment requires application container images to exist in Azure Container Registry before Azure Container Apps are provisioned.
 
+The following secrets are required to be defined in Key Vault: 
+auth-secret          
+database-url          
+github-client-id      
+github-client-secret  
+google-client-id      
+google-client-secret  
+
 ### Bootstrap Order
 
 1. Provision the foundational Azure infrastructure with Terraform:
