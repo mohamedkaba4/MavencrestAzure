@@ -23,7 +23,7 @@ https://admin.az.mavencrest.site
 
 The initial deployment requires application container images to exist in Azure Container Registry before Azure Container Apps are provisioned.
 
-The following secrets are required to be defined in Key Vault: 
+The following secrets are required to be defined for both prod and staging env in Key Vault: 
 auth-secret          
 database-url          
 github-client-id      
@@ -56,3 +56,18 @@ ADMIN_EMAIL
 5. After initial provisioning, normal Azure Pipelines deployments build and push new image versions and update the Container Apps.
 
 Terraform manages the infrastructure configuration, while Azure Pipelines manages application image versions.
+
+
+This Azure deployment has been stress tested with Grafana's K6 tool to determine how the app scales in high demand scenerioes. The scaling has been passed with 0 interrupted iterations.
+
+
+Architecture
+
+Orchestration Pipeline
+Azure Devops
+Terraform is split into foundation and workload
+Foundation builds the ACR, Container environment, resource groups and other essential backbone infrastructure.
+Azure DevOps tests the code, builds the Docker Image with the Dockerfile, pushed to the staging environment, gets smoke tested, and is subject to a manual approval step. Once approved, deployment is pushed to prod with new container revision. 
+Rollback is automated with post deployment smoketest failure, previous revision is set as active.
+
+
