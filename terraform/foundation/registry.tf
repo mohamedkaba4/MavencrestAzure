@@ -1,6 +1,7 @@
 resource "azurerm_container_registry" "main" {
-  name = "acrmavencrest${var.environment}${random_string.suffix.result}"
+  count = var.create_shared_platform ? 1 : 0
 
+  name = "acrmavencrest${var.environment}${random_string.suffix.result}"
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
   sku                 = "Basic"
