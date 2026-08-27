@@ -12,6 +12,16 @@ resources:
     name: mohamedkaba4/E-commerce
     endpoint: mohamedkaba4
 
+variables:
+  prodConnection: 'sc-mcrest-prod'
+
+  tfStateResourceGroup: 'rg-mavencrest-tfstate'
+  tfStateStorageAccount: 'stmavencresttfu6hy4j'
+  tfStateContainer: 'tfstate'
+
+  foundationStateKey: 'foundation-prod.tfstate'
+  workloadStateKey: 'workloads-prod.tfstate'
+
 stages:
 
 - stage: ValidateRepos
@@ -21,8 +31,10 @@ stages:
   - job: Validate
     steps:
     - checkout: self
+      path: s/infra
 
     - checkout: app
+      path: s/E-commerce
 
     - script: |
         echo "Current directory:"
@@ -37,3 +49,167 @@ stages:
         echo "App repo:"
         find $(Pipeline.Workspace) -maxdepth 2 -type d | head -30
       displayName: Verify Both Repositories
+
+
+- stage: Bootstrap
+  displayName: Bootstrap Terraform Backend
+  dependsOn: ValidateRepos
+  condition: false
+
+  jobs:
+  - job: BootstrapTerraform
+    steps:
+    - checkout: self
+      path: s/infra
+
+    - task: AzureCLI@2
+      displayName: Apply Terraform Bootstrap
+      inputs:
+        azureSubscription: 'sc-mcrest-prod'
+        scriptType: bash
+        scriptLocation: inlineScript
+        inlineScript: |
+          cd $(Pipeline.Workspace)/s/infra/terraform/bootstrap
+
+          terraform init
+
+          terraform plan \
+            -out=bootstrap.tfplan
+
+          terraform apply \
+            -auto-approve \
+            bootstrap.tfplan
+  
+- stage: Foundation
+  displayName: Deploy Foundation
+  dependsOn: ValidateRepos
+
+  jobs:
+  - job: TerraformFoundation
+    steps:
+    - checkout: self
+      path: s/infra
+
+    - task: AzureCLI@2
+      displayName: Terraform Foundation
+      inputs:
+        azureSubscription: '$(prodConnection)'
+        scriptType: bash
+        scriptLocation: inlineScript
+        inlineScript: |
+          cd $(Pipeline.Workspace)/s/infra/terraform/foundation
+
+          terraform init -reconfigure \
+            -backend-config="resource_group_name=$(tfStateResourceGroup)" \
+            -backend-config="storage_account_name=$(tfStateStorageAccount)" \
+            -backend-config="container_name=$(tfStateContainer)" \
+            -backend-config="key=$(foundationStateKey)"
+
+          terraform plan \
+            -var-file="prod.tfvars" \
+            -out=foundation.tfplan
+
+          terraform apply \
+            -auto-approve \
+            foundation.tfplan
+
+- stage: BuildInitialImages
+  displayName: Build Initial Images
+  dependsOn: Foundation
+
+  jobs:
+  - job: BuildImages
+    steps:
+    - checkout: app
+      path: s/E-commerce
+
+    - task: AzureCLI@2
+      displayName: Login to ACR
+      inputs:
+        azureSubscription: '$(prodConnection)'
+        scriptType: bash
+        scriptLocation: inlineScript
+        inlineScript: |
+          az acr login --name acrmavencrestprodzcjo
+
+    - script: |
+        cd $(Pipeline.Workspace)/s/E-commerce
+
+        docker build \
+          --platform linux/amd64 \
+          -f apps/storefront/Dockerfile \
+          -t acrmavencrestprodzcjo.azurecr.io/mavencrest-storefront:bootstrap \
+          .
+
+        docker push \
+          acrmavencrestprodzcjo.azurecr.io/mavencrest-storefront:bootstrap
+      displayName: Build Storefront
+
+    - script: |
+        cd $(Pipeline.Workspace)/s/E-commerce
+
+        docker build \
+          --platform linux/amd64 \
+          -f apps/admin/Dockerfile \
+          -t acrmavencrestprodzcjo.azurecr.io/mavencrest-admin:bootstrap \
+          .
+
+        docker push \
+          acrmavencrestprodzcjo.azurecr.io/mavencrest-admin:bootstrap
+      displayName: Build Admin
+
+- stage: Workloads
+  displayName: Deploy Workloads
+  dependsOn: BuildInitialImages
+
+  jobs: 
+  - job: TerraformWorkloads
+    steps:
+    - checkout: self
+      path: s/infra
+    
+    - task: AzureCLI@2
+      displayName: Terraform Workloads
+      inputs:
+        azureSubscription: '$(prodConnection)'
+        scriptType: bash
+        scriptLocation: inlineScript
+        inlineScript: |
+          cd $(Pipeline.Workspace)/s/infra/terraform/workload
+
+          terraform init -reconfigure \
+            -backend-config="resource_group_name=$(tfStateResourceGroup)" \
+            -backend-config="storage_account_name=$(tfStateStorageAccount)" \
+            -backend-config="container_name=$(tfStateContainer)" \
+            -backend-config="key=$(workloadStateKey)"
+
+          terraform plan \
+            -var-file="prod.tfvars" \
+            -out=workload.tfplan
+
+          terraform apply \
+            -auto-approve \
+            workload.tfplan
+
+- stage: ValidateDeployment
+  displayName: Validate Deployment
+  dependsOn: Workloads
+
+  jobs:
+  - job: HealthCheck
+    steps:
+    - script: |
+        echo "Testing Storefront..."
+        curl --fail \
+          --retry 10 \
+          --retry-delay 10 \
+          https://store.az.mavencrest.site/api/health
+
+        echo "Testing Admin..."
+        curl --fail \
+          --retry 10 \
+          --retry-delay 10 \
+          https://admin.az.mavencrest.site/api/health
+
+        echo "Environment successfully rebuilt."
+      displayName: Verify Production
