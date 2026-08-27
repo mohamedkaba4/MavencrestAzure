@@ -1,0 +1,13 @@
+.DS_Store
+
+**/.terraform/*
+
+**/terraform.tfstate
+**/terraform.tfstate.*
+**/*.tfstate
+**/*.tfstate.*
+
+**/crash.log
+**/crash.*.log
+
+**/*.tfplan

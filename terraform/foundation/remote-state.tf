@@ -6,7 +6,7 @@ data "terraform_remote_state" "foundation" {
 
   config = {
     resource_group_name  = "rg-mavencrest-tfstate"
-    storage_account_name = "stmavencresttfu6hy4j"
+    storage_account_name = "stmavencresttfi1zm39"
     container_name       = "tfstate"
     key                  = "foundation-${var.environment}.tfstate"
   }
@@ -19,7 +19,7 @@ data "terraform_remote_state" "shared" {
 
   config = {
     resource_group_name  = "rg-mavencrest-tfstate"
-    storage_account_name = "stmavencresttfu6hy4j"
+    storage_account_name = "stmavencresttfi1zm39"
     container_name       = "tfstate"
     key                  = "foundation-prod.tfstate"
   }

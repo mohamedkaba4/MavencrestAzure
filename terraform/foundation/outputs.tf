@@ -25,3 +25,13 @@ output "key_vault_id" {
 output "key_vault_uri" {
   value = azurerm_key_vault.main.vault_uri
 }
+
+output "app_identity_id" {
+  value       = azurerm_user_assigned_identity.app.id
+  description = "Resource ID of the User-Assigned Managed Identity."
+}
+
+output "app_identity_client_id" {
+  value       = azurerm_user_assigned_identity.app.client_id
+  description = "Client ID of the User-Assigned Managed Identity."
+}

@@ -1,51 +1,67 @@
+resource "time_sleep" "wait_60_seconds" {
+  create_duration = "60s"
+
+  depends_on = [
+    azurerm_role_assignment.store_kv_read,
+    azurerm_role_assignment.admin_kv_read,
+    azurerm_role_assignment.store_acr_pull,
+    azurerm_role_assignment.admin_acr_pull
+  ]
+}
+
 resource "azurerm_container_app" "storefront" {
   name                         = "ca-${local.prefix}-storefront"
   container_app_environment_id = data.terraform_remote_state.shared.outputs.container_app_environment_id
   resource_group_name          = data.terraform_remote_state.foundation.outputs.resource_group_name
   revision_mode                = "Single"
 
+  depends_on = [
+    time_sleep.wait_60_seconds
+  ]
+
   identity {
-    type = "SystemAssigned"
+    type         = "UserAssigned"
+    identity_ids = [data.terraform_remote_state.foundation.outputs.app_identity_id]
   }
 
   registry {
     server   = data.terraform_remote_state.shared.outputs.container_registry_login_server
-    identity = "system"
+    identity = data.terraform_remote_state.foundation.outputs.app_identity_id
   }
 
   secret {
     name                = "database-url"
-    identity            = "System"
+    identity            = data.terraform_remote_state.foundation.outputs.app_identity_id
     key_vault_secret_id = "${data.terraform_remote_state.foundation.outputs.key_vault_uri}secrets/${local.key_vault_secrets.database_url}"
   }
 
   secret {
     name                = "auth-secret"
-    identity            = "System"
+    identity            = data.terraform_remote_state.foundation.outputs.app_identity_id
     key_vault_secret_id = "${data.terraform_remote_state.foundation.outputs.key_vault_uri}secrets/${local.key_vault_secrets.auth_secret}"
   }
 
   secret {
     name                = "google-client-id"
-    identity            = "System"
+    identity            = data.terraform_remote_state.foundation.outputs.app_identity_id
     key_vault_secret_id = "${data.terraform_remote_state.foundation.outputs.key_vault_uri}secrets/${local.key_vault_secrets.google_client_id}"
   }
 
   secret {
     name                = "google-client-secret"
-    identity            = "System"
+    identity            = data.terraform_remote_state.foundation.outputs.app_identity_id
     key_vault_secret_id = "${data.terraform_remote_state.foundation.outputs.key_vault_uri}secrets/${local.key_vault_secrets.google_client_secret}"
   }
 
   secret {
     name                = "github-store-id"
-    identity            = "System"
+    identity            = data.terraform_remote_state.foundation.outputs.app_identity_id
     key_vault_secret_id = "${data.terraform_remote_state.foundation.outputs.key_vault_uri}secrets/${local.key_vault_secrets.github_store_id}"
   }
 
   secret {
     name                = "github-store-secret"
-    identity            = "System"
+    identity            = data.terraform_remote_state.foundation.outputs.app_identity_id
     key_vault_secret_id = "${data.terraform_remote_state.foundation.outputs.key_vault_uri}secrets/${local.key_vault_secrets.github_store_secret}"
   }
 
@@ -126,54 +142,59 @@ resource "azurerm_container_app" "admin" {
   resource_group_name          = data.terraform_remote_state.foundation.outputs.resource_group_name
   revision_mode                = "Single"
 
+  depends_on = [
+    time_sleep.wait_60_seconds
+  ]
+
   identity {
-    type = "SystemAssigned"
+    type         = "UserAssigned"
+    identity_ids = [data.terraform_remote_state.foundation.outputs.app_identity_id]
   }
 
   registry {
     server   = data.terraform_remote_state.shared.outputs.container_registry_login_server
-    identity = "system"
+    identity = data.terraform_remote_state.foundation.outputs.app_identity_id
   }
 
   secret {
     name                = "database-url"
-    identity            = "System"
+    identity            = data.terraform_remote_state.foundation.outputs.app_identity_id
     key_vault_secret_id = "${data.terraform_remote_state.foundation.outputs.key_vault_uri}secrets/${local.key_vault_secrets.database_url}"
   }
 
   secret {
     name                = "auth-secret"
-    identity            = "System"
+    identity            = data.terraform_remote_state.foundation.outputs.app_identity_id
     key_vault_secret_id = "${data.terraform_remote_state.foundation.outputs.key_vault_uri}secrets/${local.key_vault_secrets.auth_secret}"
   }
 
   secret {
     name                = "google-client-id"
-    identity            = "System"
+    identity            = data.terraform_remote_state.foundation.outputs.app_identity_id
     key_vault_secret_id = "${data.terraform_remote_state.foundation.outputs.key_vault_uri}secrets/${local.key_vault_secrets.google_client_id}"
   }
 
   secret {
     name                = "google-client-secret"
-    identity            = "System"
+    identity            = data.terraform_remote_state.foundation.outputs.app_identity_id
     key_vault_secret_id = "${data.terraform_remote_state.foundation.outputs.key_vault_uri}secrets/${local.key_vault_secrets.google_client_secret}"
   }
 
   secret {
     name                = "github-admin-id"
-    identity            = "System"
+    identity            = data.terraform_remote_state.foundation.outputs.app_identity_id
     key_vault_secret_id = "${data.terraform_remote_state.foundation.outputs.key_vault_uri}secrets/${local.key_vault_secrets.github_admin_id}"
   }
 
   secret {
     name                = "github-admin-secret"
-    identity            = "System"
+    identity            = data.terraform_remote_state.foundation.outputs.app_identity_id
     key_vault_secret_id = "${data.terraform_remote_state.foundation.outputs.key_vault_uri}secrets/${local.key_vault_secrets.github_admin_secret}"
   }
 
   secret {
     name                = "admin-email"
-    identity            = "System"
+    identity            = data.terraform_remote_state.foundation.outputs.app_identity_id
     key_vault_secret_id = "${data.terraform_remote_state.foundation.outputs.key_vault_uri}secrets/${local.key_vault_secrets.admin_email}"
   }
 
@@ -228,8 +249,8 @@ resource "azurerm_container_app" "admin" {
       }
 
       env {
-       name        = "ADMIN_EMAIL"
-      secret_name  = "admin-email"
+        name        = "ADMIN_EMAIL"
+        secret_name = "admin-email"
       }
     }
   }
@@ -259,10 +280,10 @@ locals {
     auth_secret          = "auth-secret"
     google_client_id     = "google-client-id"
     google_client_secret = "google-client-secret"
-    github_store_id     = "github-store-id"
-    github_store_secret = "github-store-secret"
-    github_admin_id     = "github-admin-id"
-    github_admin_secret = "github-admin-secret"
+    github_store_id      = "github-store-id"
+    github_store_secret  = "github-store-secret"
+    github_admin_id      = "github-admin-id"
+    github_admin_secret  = "github-admin-secret"
     admin_email          = "admin-email"
   }
 }
