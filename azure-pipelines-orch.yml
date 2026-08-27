@@ -22,6 +22,8 @@ variables:
   foundationStateKey: 'foundation-prod.tfstate'
   workloadStateKey: 'workloads-prod.tfstate'
 
+  pipelinePrincipalObjectId: '$(PIPELINE_PRINCIPAL_OBJECT_ID)'
+
 stages:
 
 - stage: ValidateRepos
@@ -74,7 +76,8 @@ stages:
           terraform init
 
           terraform plan \
-            -out=bootstrap.tfplan
+           -var="pipeline_principal_object_id=$(pipelinePrincipalObjectId)" \
+           -out=bootstrap.tfplan
 
           terraform apply \
             -auto-approve \
