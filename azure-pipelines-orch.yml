@@ -1,0 +1,39 @@
+trigger: none
+
+pr: none
+
+pool:
+  vmImage: ubuntu-latest
+
+resources:
+  repositories:
+  - repository: app
+    type: github
+    name: mohamedkaba4/E-commerce
+    endpoint: mohamedkaba4
+
+stages:
+
+- stage: ValidateRepos
+  displayName: Validate Repositories
+
+  jobs:
+  - job: Validate
+    steps:
+    - checkout: self
+
+    - checkout: app
+
+    - script: |
+        echo "Current directory:"
+        pwd
+
+        echo "Checked out repositories:"
+        ls -la $(Pipeline.Workspace)
+
+        echo "Infra repo:"
+        ls -la $(Pipeline.Workspace)/s
+
+        echo "App repo:"
+        find $(Pipeline.Workspace) -maxdepth 2 -type d | head -30
+      displayName: Verify Both Repositories
