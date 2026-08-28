@@ -89,6 +89,13 @@ stages:
         inlineScript: |
           set -euo pipefail
 
+          SP_APP_ID=$(az account show --query user.name -o tsv)
+
+          PIPELINE_PRINCIPAL_OBJECT_ID=$(az ad sp show \
+            --id "$SP_APP_ID" \
+            --query id \
+            -o tsv)
+
           STORAGE_ACCOUNT=$(az storage account list \
             --query "[?tags.workload=='mavencrest' && tags.purpose=='terraform-state'].name | [0]" \
             -o tsv)
@@ -109,7 +116,7 @@ stages:
             terraform init
 
             terraform plan \
-              -var="pipeline_principal_object_id=$(pipelinePrincipalObjectId)" \
+              -var="pipeline_principal_object_id=$PIPELINE_PRINCIPAL_OBJECT_ID" \
               -out=bootstrap.tfplan
 
             terraform apply \
