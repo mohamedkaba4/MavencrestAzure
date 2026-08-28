@@ -10,7 +10,7 @@ data "terraform_remote_state" "foundation" {
     container_name       = "tfstate"
     key                  = "foundation-${var.environment}.tfstate"
 
-    use_oidc         = true
+    use_cli          = true
     use_azuread_auth = true
   }
 }
@@ -24,7 +24,7 @@ data "terraform_remote_state" "shared" {
     container_name       = "tfstate"
     key                  = "foundation-prod.tfstate"
 
-    use_oidc         = true
+    use_cli          = true
     use_azuread_auth = true
   }
 }
