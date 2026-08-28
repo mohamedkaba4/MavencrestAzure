@@ -175,21 +175,33 @@ stages:
         scriptType: bash
         scriptLocation: inlineScript
         inlineScript: |
-          cd $(Pipeline.Workspace)/s/infra/terraform/foundation
+          set -euo pipefail
 
-          terraform init -reconfigure \
-            -backend-config="resource_group_name=$(tfStateResourceGroup)" \
+          export ARM_USE_CLI=true
+          export ARM_USE_AZUREAD=true
+          export ARM_TENANT_ID="$(az account show --query tenantId -o tsv)"
+
+          echo "Verifying Entra ID access to Terraform state..."
+          az storage blob list \
+            --account-name "$(tfStateStorageAccount)" \
+            --container-name "$(tfStateContainer)" \
+            --auth-mode login \
+            --num-results 1 \
+            -o none
+
+          terraform -chdir=$(Pipeline.Workspace)/s/infra/terraform/foundation init -reconfigure \
             -backend-config="storage_account_name=$(tfStateStorageAccount)" \
             -backend-config="container_name=$(tfStateContainer)" \
-            -backend-config="key=$(foundationStateKey)"\
+            -backend-config="key=$(foundationStateKey)" \
+            -backend-config="tenant_id=$ARM_TENANT_ID" \
             -backend-config="use_cli=true" \
             -backend-config="use_azuread_auth=true"
 
-          terraform plan \
+          terraform -chdir=$(Pipeline.Workspace)/s/infra/terraform/foundation plan \
             -var-file="prod.tfvars" \
             -out=foundation.tfplan
 
-          terraform apply \
+          terraform -chdir=$(Pipeline.Workspace)/s/infra/terraform/foundation apply \
             -auto-approve \
             foundation.tfplan
 
