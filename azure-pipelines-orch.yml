@@ -181,7 +181,7 @@ stages:
             -backend-config="resource_group_name=$(tfStateResourceGroup)" \
             -backend-config="storage_account_name=$(tfStateStorageAccount)" \
             -backend-config="container_name=$(tfStateContainer)" \
-            -backend-config="key=$(foundationStateKey)"
+            -backend-config="key=$(foundationStateKey)"\
             -backend-config="use_azuread_auth=true"
 
           terraform plan \
@@ -283,7 +283,7 @@ stages:
             -backend-config="resource_group_name=$(tfStateResourceGroup)" \
             -backend-config="storage_account_name=$(tfStateStorageAccount)" \
             -backend-config="container_name=$(tfStateContainer)" \
-            -backend-config="key=$(workloadStateKey)"
+            -backend-config="key=$(workloadStateKey)"\
             -backend-config="use_azuread_auth=true"
 
           terraform plan \
