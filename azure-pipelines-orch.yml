@@ -20,8 +20,6 @@ variables:
   foundationStateKey: 'foundation-prod.tfstate'
   workloadStateKey: 'workloads-prod.tfstate'
 
-  pipelinePrincipalObjectId: '$(PIPELINE_PRINCIPAL_OBJECT_ID)'
-
 stages:
 
 - stage: ValidateRepos
