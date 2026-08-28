@@ -9,12 +9,12 @@ data "terraform_remote_state" "foundation" {
     storage_account_name = "stmavencresttfi1zm39"
     container_name       = "tfstate"
     key                  = "foundation-${var.environment}.tfstate"
-    use_azuread_auth     = true
+
+    use_oidc         = true
+    use_azuread_auth = true
   }
 }
 
-# Shared platform resources currently owned by prod foundation:
-# ACR + Container Apps Environment
 data "terraform_remote_state" "shared" {
   backend = "azurerm"
 
@@ -23,6 +23,8 @@ data "terraform_remote_state" "shared" {
     storage_account_name = "stmavencresttfi1zm39"
     container_name       = "tfstate"
     key                  = "foundation-prod.tfstate"
-    use_azuread_auth     = true
+
+    use_oidc         = true
+    use_azuread_auth = true
   }
 }
