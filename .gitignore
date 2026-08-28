@@ -1,7 +1,8 @@
 .terraform/
 *.tfstate
 *.tfstate.*
-*.tfvars
+local.tfvars
+secrets.tfvars
 !*.tfvars.example
 crash.log
 .DS_Store
