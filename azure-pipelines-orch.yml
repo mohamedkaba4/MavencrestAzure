@@ -123,9 +123,9 @@ stages:
               -var="pipeline_principal_object_id=$PIPELINE_PRINCIPAL_OBJECT_ID" \
               -out=bootstrap.tfplan
 
-            terraform apply \
-              -auto-approve \
-              bootstrap.tfplan
+            #terraform apply \
+              #-auto-approve \
+              #bootstrap.tfplan
 
             STORAGE_ACCOUNT=$(terraform output -raw storage_account_name)
             TFSTATE_RG=$(terraform output -raw resource_group_name)
