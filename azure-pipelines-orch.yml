@@ -111,6 +111,12 @@ stages:
 
             cd $(Pipeline.Workspace)/s/infra/terraform/bootstrap
 
+            echo "Current bootstrap directory:"
+            pwd
+
+            echo "Looking for pipeline_principal_object_id:"
+            grep -R "pipeline_principal_object_id" . || true
+
             terraform init
 
             terraform plan \
