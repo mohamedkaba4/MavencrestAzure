@@ -27,3 +27,12 @@ variable "frontdoor" {
   type        = string
   default     = "container"
 }
+
+variable "tfstate_storage_account_name" {
+  type = string
+}
+
+variable "tfstate_container_name" {
+  type    = string
+  default = "tfstate"
+}
