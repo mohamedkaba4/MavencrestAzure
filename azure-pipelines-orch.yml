@@ -290,21 +290,39 @@ stages:
         scriptType: bash
         scriptLocation: inlineScript
         inlineScript: |
-          cd $(Pipeline.Workspace)/s/infra/terraform/workload
+          set -euo pipefail
 
-          terraform init -reconfigure \
-            -backend-config="resource_group_name=$(tfStateResourceGroup)" \
+          export ARM_USE_CLI=true
+          export ARM_USE_AZUREAD=true
+          export ARM_TENANT_ID="$(az account show --query tenantId -o tsv)"
+
+          echo "Verifying Entra ID access to Terraform state..."
+          az storage blob list \
+            --account-name "$(tfStateStorageAccount)" \
+            --container-name "$(tfStateContainer)" \
+            --auth-mode login \
+            --num-results 1 \
+            -o none
+
+          echo "Verifying remote-state configuration used by this run..."
+          grep -nE "storage_account_name|container_name|use_cli|use_azuread_auth|use_oidc|resource_group_name" \
+            $(Pipeline.Workspace)/s/infra/terraform/workload/remote-state.tf
+
+          terraform -chdir=$(Pipeline.Workspace)/s/infra/terraform/workload init -reconfigure \
             -backend-config="storage_account_name=$(tfStateStorageAccount)" \
             -backend-config="container_name=$(tfStateContainer)" \
-            -backend-config="key=$(workloadStateKey)"\
+            -backend-config="key=$(workloadStateKey)" \
+            -backend-config="tenant_id=$ARM_TENANT_ID" \
             -backend-config="use_cli=true" \
             -backend-config="use_azuread_auth=true"
 
-          terraform plan \
+          terraform -chdir=$(Pipeline.Workspace)/s/infra/terraform/workload plan \
             -var-file="prod.tfvars" \
+            -var="tfstate_storage_account_name=$(tfStateStorageAccount)" \
+            -var="tfstate_container_name=$(tfStateContainer)" \
             -out=workload.tfplan
 
-          terraform apply \
+          terraform -chdir=$(Pipeline.Workspace)/s/infra/terraform/workload apply \
             -auto-approve \
             workload.tfplan
             
