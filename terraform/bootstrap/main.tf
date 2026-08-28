@@ -21,6 +21,11 @@ provider "azurerm" {
 resource "azurerm_resource_group" "tfstate" {
   name     = "rg-mavencrest-tfstate"
   location = "eastus"
+
+  tags = {
+    workload = "mavencrest"
+    purpose  = "terraform-state"
+  }
 }
 
 resource "random_string" "suffix" {
@@ -37,6 +42,11 @@ resource "azurerm_storage_account" "tfstate" {
   account_replication_type = "LRS"
 
   min_tls_version = "TLS1_2"
+
+  tags = {
+    workload = "mavencrest"
+    purpose  = "terraform-state"
+  }
 }
 
 resource "azurerm_storage_container" "tfstate" {
@@ -55,4 +65,20 @@ output "storage_account_name" {
 
 output "container_name" {
   value = azurerm_storage_container.tfstate.name
+}
+
+variable "pipeline_principal_object_id" {
+  type = string
+}
+
+resource "azurerm_role_assignment" "tfstate_reader" {
+  scope                = azurerm_resource_group.tfstate.id
+  role_definition_name = "Reader"
+  principal_id         = var.pipeline_principal_object_id
+}
+
+resource "azurerm_role_assignment" "tfstate_blob_contributor" {
+  scope                = azurerm_storage_account.tfstate.id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = var.pipeline_principal_object_id
 }
