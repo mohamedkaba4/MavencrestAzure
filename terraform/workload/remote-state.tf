@@ -1,12 +1,10 @@
-# Environment-specific foundation:
-# prod uses foundation-prod.tfstate
-# staging uses foundation-staging.tfstate
+# Environment-specific foundation state
 data "terraform_remote_state" "foundation" {
   backend = "azurerm"
 
   config = {
-    storage_account_name = "stmavencresttfi1zm39"
-    container_name       = "tfstate"
+    storage_account_name = var.tfstate_storage_account_name
+    container_name       = var.tfstate_container_name
     key                  = "foundation-${var.environment}.tfstate"
 
     use_cli          = true
@@ -14,12 +12,13 @@ data "terraform_remote_state" "foundation" {
   }
 }
 
+# Shared platform resources currently owned by prod foundation
 data "terraform_remote_state" "shared" {
   backend = "azurerm"
 
   config = {
-    storage_account_name = "stmavencresttfi1zm39"
-    container_name       = "tfstate"
+    storage_account_name = var.tfstate_storage_account_name
+    container_name       = var.tfstate_container_name
     key                  = "foundation-prod.tfstate"
 
     use_cli          = true
