@@ -9,6 +9,7 @@ data "terraform_remote_state" "foundation" {
     storage_account_name = "stmavencresttfi1zm39"
     container_name       = "tfstate"
     key                  = "foundation-${var.environment}.tfstate"
+    use_azuread_auth     = true
   }
 }
 
@@ -22,5 +23,6 @@ data "terraform_remote_state" "shared" {
     storage_account_name = "stmavencresttfi1zm39"
     container_name       = "tfstate"
     key                  = "foundation-prod.tfstate"
+    use_azuread_auth     = true
   }
 }
