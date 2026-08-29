@@ -347,4 +347,4 @@ stages:
          https://admin.az.mavencrest.site/api/health
 
          echo "Environment successfully rebuilt."
-         displayName: Verify Production
+       displayName: Verify Production
