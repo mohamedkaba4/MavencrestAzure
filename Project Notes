@@ -1,0 +1,24 @@
+Design choices made and trade-offs
+Chose Azure Container Apps for managed containers, autoscaling, revisions, and scale-to-zero.
+Trade-off: less control and flexibility than Azure Kubernetes Service (AKS).
+Split Terraform into foundation and workload layers to limit the impact of changes.
+Trade-off: slightly more complexity with state and dependencies.
+
+“What problems did you run into, and how did you troubleshoot them?”
+Ran into image pull, Key Vault access, revision, and connectivity issues.
+Used logs and deployment errors to narrow down the problem.
+Checked Managed Identity, Role-Based Access Control (RBAC), environment variables, networking, and pipeline configuration.
+
+“What did you learn from the project?”
+How to separate infrastructure deployment from application deployment.
+How to use Managed Identity instead of stored Azure credentials.
+How to design safer deployment and rollback workflows.
+How to troubleshoot across Terraform, Azure, containers, and the application.
+
+“What would you change if this were supporting real production traffic?”
+Add Azure Front Door and a Web Application Firewall (WAF).
+Deploy across multiple regions.
+Increase staging and production isolation.
+Add private networking.
+Improve monitoring, alerting, and security scanning.
+Use canary or blue/green deployments.
