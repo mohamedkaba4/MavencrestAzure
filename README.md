@@ -66,8 +66,18 @@ Architecture
 Orchestration Pipeline
 Azure Devops
 Terraform is split into foundation and workload
-Foundation builds the ACR, Container environment, resource groups and other essential backbone infrastructure.
-Azure DevOps tests the code, builds the Docker Image with the Dockerfile, pushed to the staging environment, gets smoke tested, and is subject to a manual approval step. Once approved, deployment is pushed to prod with new container revision. 
-Rollback is automated with post deployment smoketest failure, previous revision is set as active.
+Foundation builds the ACR, Container environment, resource groups, and other essential backbone infrastructure.
+Azure DevOps tests the code, builds the Docker Image with the Dockerfile, pushed to the staging environment, gets smoke tested, and is subject to a manual approval step. Once approved, the deployment is pushed to prod with the new container revision. 
+Rollback is automated with a post-deployment smoke test. If there is a failure, the previous revision is set as active.
+
+Services used
+Azure Monitor
+Key Vault
+ACA
+CAE
+ACR
+Azure DNS Zone
+
+
 
 
