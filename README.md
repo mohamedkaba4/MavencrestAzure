@@ -2,11 +2,6 @@
 
 Infrastructure-as-Code (IaC) and Continuous Integration/Continuous Delivery (CI/CD) platform for deploying the containerized Mavencrest Store application to Microsoft Azure.
 
-Live:
-
-https://store.az.mavencrest.site
-https://admin.az.mavencrest.site
-
 ## Business Problem
 
 The platform provides a repeatable way to deploy and update the Mavencrest Store without manually configuring Azure resources.
