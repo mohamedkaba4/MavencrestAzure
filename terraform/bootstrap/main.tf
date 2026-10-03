@@ -14,8 +14,19 @@ terraform {
   }
 }
 
+variable "subscription_id" {
+  type        = string
+  description = "Azure subscription where the Mavencrest Terraform state backend is created."
+}
+
+variable "pipeline_principal_object_id" {
+  type = string
+}
+
 provider "azurerm" {
   features {}
+
+  subscription_id = var.subscription_id
 }
 
 resource "azurerm_resource_group" "tfstate" {
@@ -55,22 +66,6 @@ resource "azurerm_storage_container" "tfstate" {
   container_access_type = "private"
 }
 
-output "resource_group_name" {
-  value = azurerm_resource_group.tfstate.name
-}
-
-output "storage_account_name" {
-  value = azurerm_storage_account.tfstate.name
-}
-
-output "container_name" {
-  value = azurerm_storage_container.tfstate.name
-}
-
-variable "pipeline_principal_object_id" {
-  type = string
-}
-
 resource "azurerm_role_assignment" "tfstate_reader" {
   scope                = azurerm_resource_group.tfstate.id
   role_definition_name = "Reader"
@@ -81,4 +76,16 @@ resource "azurerm_role_assignment" "tfstate_blob_contributor" {
   scope                = azurerm_storage_account.tfstate.id
   role_definition_name = "Storage Blob Data Contributor"
   principal_id         = var.pipeline_principal_object_id
+}
+
+output "resource_group_name" {
+  value = azurerm_resource_group.tfstate.name
+}
+
+output "storage_account_name" {
+  value = azurerm_storage_account.tfstate.name
+}
+
+output "container_name" {
+  value = azurerm_storage_container.tfstate.name
 }
