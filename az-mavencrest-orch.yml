@@ -13,7 +13,7 @@ resources:
     endpoint: mohamedkaba4
 
 variables:
-  prodConnection: 'sc-mcrest-prod'
+  prodConnection: 'mavencrest-prod-sc'
 
   tfStateContainer: 'tfstate'
 
