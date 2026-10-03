@@ -10,13 +10,11 @@ resource "azurerm_key_vault" "main" {
   rbac_authorization_enabled = true
 
   soft_delete_retention_days = 90
-  purge_protection_enabled   = false
+  purge_protection_enabled   = true
 
   tags = local.tags
-  
+
   lifecycle {
-  prevent_destroy = true
+    prevent_destroy = true
+  }
 }
-}
-
-
