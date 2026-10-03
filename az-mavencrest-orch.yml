@@ -77,7 +77,7 @@ stages:
         terraform version
       displayName: Install Terraform
       
-        - task: AzureCLI@2
+    - task: AzureCLI@2
       name: bootstrapOutputs
       displayName: Resolve or Create Terraform Backend
       inputs:
