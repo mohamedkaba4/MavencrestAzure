@@ -3,6 +3,8 @@ Chose Azure Container Apps for managed containers, autoscaling, revisions, and s
 Trade-off: less control and flexibility than Azure Kubernetes Service (AKS).
 Split Terraform into foundation and workload layers to limit the impact of changes.
 Trade-off: slightly more complexity with state and dependencies.
+Reused foundational resources for workload containers
+Trade-off: Less complexity, less isolation of environments.
 
 Problems I ran into, and how to troubleshoot them?
 Ran into image pull, Key Vault access, revision, and connectivity issues.
