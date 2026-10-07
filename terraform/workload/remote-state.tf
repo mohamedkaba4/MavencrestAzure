@@ -1,11 +1,11 @@
-# Environment-specific foundation state
+# Shared Mavencrest foundation used by both prod and staging workloads
 data "terraform_remote_state" "foundation" {
   backend = "azurerm"
 
   config = {
     storage_account_name = var.tfstate_storage_account_name
     container_name       = var.tfstate_container_name
-    key                  = "foundation-${var.environment}.tfstate"
+    key                  = "foundation-prod.tfstate"
 
     use_cli          = true
     use_azuread_auth = true

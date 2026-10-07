@@ -1,6 +1,6 @@
-# Fetch the resource group details dynamically from foundation output
+# Get the resource group details dynamically from foundation output
 data "azurerm_resource_group" "rg" {
-  name = data.terraform_remote_state.foundation.outputs.resource_group_name
+  name = var.resource_group_name
 }
 
 # User-Assigned Managed Identities

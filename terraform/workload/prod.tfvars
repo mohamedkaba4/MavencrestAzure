@@ -1,2 +1,5 @@
-location    = "eastus"
-environment = "prod"
+location                     = "eastus"
+environment                  = "prod"
+tfstate_storage_account_name = "stmavencresttflu85s6"
+tfstate_container_name       = "tfstate"
+resource_group_name          = "rg-mavencrest-prod"

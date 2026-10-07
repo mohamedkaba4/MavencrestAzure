@@ -1,2 +1,5 @@
-location    = "eastus"
-environment = "staging"
+location                     = "eastus"
+environment                  = "staging"
+resource_group_name          = "rg-mavencrest-staging"
+tfstate_storage_account_name = "stmavencresttflu85s6"
+tfstate_container_name       = "tfstate"

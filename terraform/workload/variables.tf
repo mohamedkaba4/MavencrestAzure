@@ -36,3 +36,8 @@ variable "tfstate_container_name" {
   type    = string
   default = "tfstate"
 }
+
+variable "resource_group_name" {
+  type        = string
+  description = "Resource group where workload Container Apps are deployed."
+}
